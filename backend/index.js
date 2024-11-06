@@ -2,13 +2,12 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt");  
-const jwt = require("jsonwebtoken");  
-require('dotenv').config(); 
+const jwt = require("jsonwebtoken");
+require('dotenv').config();
 
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3000', 
+    origin: 'http://localhost:3000',
 }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,8 +19,8 @@ const db = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     waitForConnections: true,
-    connectionLimit:10,
-    queueLimit:0
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 // Test connection
@@ -40,7 +39,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    
+
     if (!token) return res.status(401).json("Access Denied: No Token Provided");
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -66,20 +65,19 @@ app.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
     const checkUserSql = "SELECT * FROM users WHERE email = ?";
     const insertUserSql = "INSERT INTO users (name, email, password) VALUES (?)";
-    
+
     try {
         // Check if the user already exists
-        db.query(checkUserSql, [email], async (err, data) => {
+        db.query(checkUserSql, [email], (err, data) => {
             if (err) return res.status(500).json("Error checking user");
-            
+
             if (data.length > 0) {
                 return res.status(400).json("User already exists");
             }
 
-            // Hash the password and insert user into the database
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const values = [name, email, hashedPassword];
-            
+            const values = [name, email, password];
+
+            // Insert user into the database
             db.query(insertUserSql, [values], (err) => {
                 if (err) {
                     return res.status(500).json("Error registering user");
@@ -88,7 +86,7 @@ app.post("/signup", async (req, res) => {
             });
         });
     } catch (err) {
-        res.status(500).json("Error hashing password");
+        res.status(500).json("Error registering user");
     }
 });
 
@@ -96,16 +94,15 @@ app.post("/signup", async (req, res) => {
 app.post("/signin", (req, res) => {
     const { email, password } = req.body;
     const sql = "SELECT * FROM users WHERE email = ?";
-    
-    db.query(sql, [email], async (err, data) => {
+
+    db.query(sql, [email], (err, data) => {
         if (err) {
             return res.status(500).json("Error");
         }
         if (data.length > 0) {
             const user = data[0];
-            const isPasswordCorrect = await bcrypt.compare(password, user.password);
-            
-            if (!isPasswordCorrect) {
+
+            if (password !== user.password) {
                 return res.status(401).json("Invalid Credentials");
             }
 
@@ -124,7 +121,7 @@ app.post("/signin", (req, res) => {
 // Protected route to fetch user data
 app.get("/users", authenticateToken, (req, res) => {
     const sql = "SELECT * FROM users WHERE id = ?";
-    
+
     db.query(sql, [req.user.id], (err, data) => {
         if (err) {
             return res.status(500).json("Error fetching data");
@@ -133,14 +130,18 @@ app.get("/users", authenticateToken, (req, res) => {
         logAction(req.user.id, "Viewed own data");
 
         if (data.length > 0) {
-            return res.json(data[0]); 
+            return res.json(data[0]);
         } else {
             return res.status(404).json("User not found");
         }
     });
 });
 
+app.get("/", (req, res) => {
+    res.send("hello world");
+});
+
 // Start the server
-app.listen(8085, () => {
-    console.log("Server is running on port 8085");
+app.listen(8086, () => {
+    console.log("Server is running on port 8086");
 });
