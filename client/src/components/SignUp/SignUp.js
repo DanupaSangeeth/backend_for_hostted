@@ -63,7 +63,7 @@ const SignUp = () => {
 
     if (Object.keys(validationErrors).length === 0) {
       try {
-        const response = await axios.post('http://localhost:8085/signup', values);
+        const response = await axios.post('https://backend-for-hostted-server.vercel.app/signup', values);
 
         if (response.status === 200) {
           const { token } = response.data;

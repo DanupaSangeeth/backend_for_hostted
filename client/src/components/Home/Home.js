@@ -28,7 +28,7 @@ function Home() {
           return; 
         }
 
-        const response = await fetch('http://localhost:8085/users', {
+        const response = await fetch('http://backend-for-hostted-server.vercel.app/users', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`, 
