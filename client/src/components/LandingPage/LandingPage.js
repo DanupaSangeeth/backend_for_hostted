@@ -17,7 +17,7 @@ const LandingPage = () => {
           <img className="car1" src={background} alt="header" />
         </div>
         <div className="header__content">
-          <h2> Higher National Diploma in Software Engineering (HNDSE)-23.2F</h2>
+          <h2> Higher National Diploma in Software Engineering (HNDSE)-23.3F</h2>
           <h1>SECURE WRAPPER APPLICATION </h1>
         </div>
       </header>
