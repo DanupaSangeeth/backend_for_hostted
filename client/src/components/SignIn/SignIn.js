@@ -13,6 +13,7 @@ const SignIn = () => {
     });
 
     const [errors, setErrors] = useState({});
+    const [userRole, setUserRole] = useState(''); // To store the user's role (admin/user)
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -22,10 +23,9 @@ const SignIn = () => {
         });
     };
 
-   
     const validate = (values) => {
         const errors = {};
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!values.email) {
             errors.email = "Email is required.";
@@ -48,14 +48,20 @@ const SignIn = () => {
         const validationErrors = validate(values);
         setErrors(validationErrors);
 
-        if (Object.keys(validationErrors).length === 0) { 
+        if (Object.keys(validationErrors).length === 0) {
             try {
                 const res = await axios.post('https://backend-for-hostted-server.vercel.app/signin', values);
 
-                if (res.data.token) { 
+                if (res.data.token) {
                     localStorage.setItem('token', res.data.token); 
+                    setUserRole(res.data.role);  // Store the user role (assume backend sends this)
+
                     toast.success('Login successful!');
-                    navigate('/home');
+                    if (res.data.role === 'admin') {
+                        navigate('/admin'); // Navigate to admin dashboard if admin
+                    } else {
+                        navigate('/home'); // Navigate to home for regular users
+                    }
                 } else {
                     toast.error("No records existed");
                 }
@@ -90,7 +96,7 @@ const SignIn = () => {
                                     value={values.email}
                                     onChange={handleChange} 
                                 />
-                                {errors.email && <span className="error-message">{errors.email}</span>} {/* Display email error */}
+                                {errors.email && <span className="error-message">{errors.email}</span>}
                             </div>
                         </div>
 
@@ -107,7 +113,7 @@ const SignIn = () => {
                                     value={values.password}
                                     onChange={handleChange} 
                                 />
-                                {errors.password && <span className="error-message">{errors.password}</span>} {/* Display password error */}
+                                {errors.password && <span className="error-message">{errors.password}</span>}
                             </div>
                         </div>
 
@@ -115,8 +121,18 @@ const SignIn = () => {
                         <a href='/signup' className="abtn">SIGN UP</a>
                         <p>Don't Have An Account?</p>
                     </form>
+
+                    {/* Conditionally render the Admin button if user is an admin */}
+                    {userRole === 'admin' && (
+                        <button 
+                            className="admin-btn"
+                            onClick={() => navigate('/admin')}>
+                            Admin Panel
+                        </button>
+                    )}
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };
