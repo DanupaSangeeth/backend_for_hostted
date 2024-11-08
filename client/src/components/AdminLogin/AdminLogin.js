@@ -19,19 +19,26 @@ const AdminLogin = ({ setIsAdminAuthenticated }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email: email,  // Use state variables
+          password: password,  // Use state variables
+        }),
       });
-
       const data = await response.json();
-
+      
       if (response.ok) {
-        // On successful login, store the token and update the authentication state
-        localStorage.setItem('adminToken', data.token); // Store token in localStorage
+        console.log('Login Successful:', data);
+        // Store the token and send it in subsequent requests
+        localStorage.setItem('token', data.token);
+        
+        // Update admin authentication state
         setIsAdminAuthenticated(true);
-        navigate('/admin-home'); // Redirect to Admin Home Page
+
+        // Redirect to admin dashboard
+        navigate('/admin-dashboard'); // Redirect to the admin dashboard or home page
       } else {
-        // Display error message from response or fallback to generic message
-        setErrorMessage(data.message || 'Invalid credentials');
+        console.log('Login Failed:', data);
+        setErrorMessage('Invalid credentials'); // Show error message
       }
     } catch (error) {
       console.error('Error during login:', error);
