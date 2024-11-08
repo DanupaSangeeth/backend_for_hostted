@@ -1,61 +1,42 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './AdminLogin.css'; // Import the CSS file
+import { useState } from "react";
+import axios from "axios";
 
-const AdminLogin = ({ setIsAdminAuthenticated }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+const AdminLogin = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post("http://backend-for-hostted-server.vercel.app/admin-login", { email, password });
+            const token = response.data.token;
+            localStorage.setItem("adminToken", token);  // Store JWT token
+            // Redirect to admin home page
+            window.location.href = "/admin-home";  
+        } catch (err) {
+            setError("Invalid credentials");
+        }
+    };
 
-    // Make an API call to authenticate admin
-    const response = await fetch('http://backend-for-hostted-server.vercel.app/admin/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-    
-    if (response.ok) {
-      // On successful login, store the token and update the authentication state
-      localStorage.setItem('adminToken', data.token);  // Store token in localStorage
-      setIsAdminAuthenticated(true);
-      navigate('/admin/home');  // Redirect to Admin Home Page
-    } else {
-      alert('Invalid credentials');
-    }
-  };
-
-  return (
-    <div className="admin-login-container">
-      <form className="admin-login-form" onSubmit={handleLogin}>
-        <h2>Admin Login</h2>
-        
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        
-        <button type="submit">Login</button>
-        
-        <a href="/forgot-password" className="forgot-password">Forgot password?</a>
-      </form>
-    </div>
-  );
+    return (
+        <form onSubmit={handleSubmit}>
+            <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            {error && <div>{error}</div>}
+            <button type="submit">Login</button>
+        </form>
+    );
 };
 
 export default AdminLogin;
