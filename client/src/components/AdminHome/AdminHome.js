@@ -9,7 +9,7 @@ const AdminHome = () => {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('adminToken');  // Fetch 'adminToken'
 
         if (!token) {
           alert('Unauthorized! Please login again.');
