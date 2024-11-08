@@ -1,84 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
 
 :root {
-  --primary-color: #282626;
-  --secondary-color: #751a07;
-  --accent-color: #26b257; /* Bright green accent */
-  --hover-color: #1ed760; /* Hover state for buttons */
-  --text-light: #ffffff;
-  --text-dark: #e5e5e5;
+  --primary-color: #f1eee9;
+  --secondary-color: #f54725;
+  --tertiary-color: #f9d678;
+  --text-dark: #13313c;
+  --text-light: #475569;
+  --white: #ffffff;
   --max-width: 1200px;
-  --header-font: 'Poppins', sans-serif;
+  --header-font: "Rubik", sans-serif;
 }
 
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: var(--header-font);
-}
-
-.landingpage {
-  background-color: var(--primary-color);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow-y: auto;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
-  background-color: var(--primary-color);
-}
-
-.nav__logo a {
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--text-light);
-}
-
-.nav__btns {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav__btns .lbtn {
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  font-weight: 500;
-  background-color: var(--accent-color);
-  color: var(--text-light);
-  border: none;
-  border-radius: 5rem;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.nav__btns .lbtn:hover {
-  background-color: var(--hover-color);
 }
 
 .section__container {
   max-width: var(--max-width);
   margin: auto;
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 5rem 1rem;
 }
 
-.header__container {
+.car1 {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.landingpage{
+    background-image: linear-gradient(to right, #7f32be, #7729b6, #9632be);
+    height: 100vh; 
+    overflow-y: auto; 
+}
+
+.nav__logo a {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.nav__logo a span {
+  padding: 3px 7px;
+  margin-inline: 5px;
+  font-size: 1rem;
+  background-color: var(--secondary-color);
+  border-radius: 100%;
+}
+
+
+.header__container {
+  display: grid;
   gap: 2rem;
 }
 
 .header__image img {
-  max-width: 60%;
-  height: auto;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 100%; 
+}
+
+.car1 {
+  width: 100%;
 }
 
 .header__content {
@@ -86,60 +72,130 @@
 }
 
 .header__content h2 {
+  margin-bottom: 0.5rem;
   font-size: 1.4rem;
   font-weight: 600;
-  color: var(--text-dark);
+  color: var (--text-dark);
 }
 
 .header__content h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--text-light);
   margin-bottom: 1rem;
+  font-size: 40px;
+  font-weight: 600;
+  font-family: var(--header-font);
+  line-height: 4rem;
+  color: var(--text-dark);
 }
 
-.lpara {
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  margin-bottom: 2rem;
+.lpara{
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.75rem;
+  color: #2d3542;
 }
 
 .header__btns {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 1rem;
 }
 
-.header__btn {
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-light);
-  background-color: var(--accent-color);
-  border: none;
-  border-radius: 5rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.header__btns img {
+  max-width: 150px;
+  border-radius: 5px;
 }
-
-.header__btn--outline {
-  background-color: transparent;
-  border: 2px solid var(--accent-color);
-  color: var(--accent-color);
-}
-
-.header__btn--outline:hover {
-  background-color: var(--accent-color);
-  color: var(--text-light);
-}
-
-.header__btn:hover {
-  background-color: var(--hover-color);
-}
+.nav__btns .lbtn {
+    display: inline-flex;    
+    justify-content: center;   
+    align-items: center;
+    padding: 0.75rem 2rem;
+    width: 200px;
+    outline: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text-dark);
+    background-image: linear-gradient(to right, #32be8f, #38d39f, #32be8f);
+    background-size: 200%;
+    border-radius: 5rem;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+    cursor: pointer;
+    margin-right: 30px;
+    margin-top: 30px;
+  }
 
 @media (min-width: 768px) {
+  nav {
+    position: static;
+    padding-block: 2rem 0;
+    padding-inline: 1rem;
+    max-width: var(--max-width);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .nav__header {
+    flex: 1;
+    padding: 0;
+    background-color: transparent;
+  }
+
+  .nav__logo a {
+    font-size: 2rem;
+    color: var(--text-dark);
+  }
+
+  .nav__logo a span {
+    padding: 6px 9px;
+    color: var(--white);
+  }
+
+
+  .nav__btns {
+    display: flex;
+    flex: 1;
+  }
+
+  .nav__btns .lbtn {
+    display: inline-flex;    
+    justify-content: center;   
+    align-items: center;
+    padding: 0.75rem 2rem;
+    width: 200px;
+    outline: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text-dark);
+    background-color: var(--tertiary-color);
+    border-radius: 5rem;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+    cursor: pointer;
+    margin-right: 30px;
+  }
+
+  .nav__btns .lbtn:hover {
+    color: var(--white);
+    background-color: var(--secondary-color);
+    background-position: right;
+  }
+
   .header__container {
-    flex-direction: row;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+  }
+
+  .header__image img {
+    width: 800px;
   }
 
   .header__content {
@@ -149,4 +205,7 @@
   .header__btns {
     justify-content: flex-start;
   }
+}
+.input::placeholder {
+  color: #000000; 
 }
