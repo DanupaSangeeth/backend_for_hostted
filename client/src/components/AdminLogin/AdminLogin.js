@@ -30,11 +30,16 @@ const AdminLogin = ({ setIsAdminAuthenticated }) => {
 
       if (response.ok) {
         console.log('Login Successful:', data);
+
         // Store the token and send it in subsequent requests
         localStorage.setItem('token', data.token);
         
-        // Update admin authentication state
-        setIsAdminAuthenticated(true);
+        // Ensure setIsAdminAuthenticated is a function
+        if (typeof setIsAdminAuthenticated === 'function') {
+          setIsAdminAuthenticated(true);  // Update admin authentication state
+        } else {
+          console.error('setIsAdminAuthenticated is not a function');
+        }
 
         // Redirect to admin dashboard
         navigate('/admin-dashboard'); // Redirect to the admin dashboard or home page
