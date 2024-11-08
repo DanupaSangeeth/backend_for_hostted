@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #9d9797;
+  --primary-color: #000000;
   --secondary-color: #f54725;
-  --accent-color: #1db954; /* Bright green accent */
-  --hover-color: #1ed760; /* Hover state for buttons */
+  --accent-color: #f3f6f4; /* Bright green accent */
+  --hover-color: #1bbd54; /* Hover state for buttons */
   --text-light: #ffffff;
   --text-dark: #e5e5e5;
   --max-width: 1200px;
