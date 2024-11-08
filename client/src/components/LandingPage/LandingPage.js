@@ -21,7 +21,7 @@ const LandingPage = () => {
         </div>
         <div className="header__content">
           <h2>Higher National Diploma in Software Engineering (HNDSE) - 23.3F</h2>
-          <h1>Secure Wrapper Application</h1>
+          <h1>GEN-X</h1>
           <p className="lpara">Your ultimate solution to secure and protect your sensitive applications.</p>
           <div className="header__btns">
             <a href="/signup" className="header__btn">Get Started</a>
