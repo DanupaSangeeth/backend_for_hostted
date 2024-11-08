@@ -1,60 +1,53 @@
-// AdminLogin.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const AdminLogin = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+const AdminLogin = ({ setIsAdminAuthenticated }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:8086/signin', { email, password });
-            
-            if (response.data.role === 'admin') {
-                localStorage.setItem('token', response.data.token);
-                setSuccess("Login successful! Redirecting to admin dashboard...");
-                setTimeout(() => {
-                    window.location.href = '/admin/home'; // Redirect to admin home page
-                }, 2000);
-            } else {
-                setError("Unauthorized: Only admins can access this page.");
-            }
-        } catch (err) {
-            setError("Invalid credentials. Please try again.");
-        }
-    };
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    return (
-        <div className="login-container">
-            <h2>Admin Login</h2>
-            <form onSubmit={handleLogin}>
-                <div className="form-group">
-                    <label>Email:</label>
-                    <input 
-                        type="email" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        required 
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Password:</label>
-                    <input 
-                        type="password" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                        required 
-                    />
-                </div>
-                <button type="submit">Login</button>
-            </form>
-            {error && <p className="error-message">{error}</p>}
-            {success && <p className="success-message">{success}</p>}
-        </div>
-    );
+    // Make an API call to authenticate admin
+    const response = await fetch('http://your-api-url/admin/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      // On successful login, store the token and update the authentication state
+      localStorage.setItem('adminToken', data.token);  // Store token in localStorage
+      setIsAdminAuthenticated(true);
+      navigate('/admin/home');  // Redirect to Admin Home Page
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin}>
+      <h2>Admin Login</h2>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button type="submit">Login</button>
+    </form>
+  );
 };
 
 export default AdminLogin;
