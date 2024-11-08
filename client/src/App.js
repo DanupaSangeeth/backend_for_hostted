@@ -17,11 +17,20 @@ function App() {
         <ToastContainer position="top-center" style={{marginTop: "70px"}}/>
             <main>
               <Routes>
-                
               <Route path='/' element={<LandingPage/>}/>
               <Route path='/home' element={<Home/>}/>
               <Route path='/signin' element={<SignIn/>}/>
               <Route path='/signup' element={<SignUp/>}/>
+
+              <Route path="/admin/login" element={<AdminLogin setIsAdminAuthenticated={setIsAdminAuthenticated} />} />
+
+           {/* Protected Admin Home Page */}
+            <Route
+             path="/admin/home"
+            element={isAdminAuthenticated ? <AdminHome /> : <SignIn />} // Only show Admin Home if authenticated  
+
+              />
+             
               </Routes>
             </main>
         </BrowserRouter>
