@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './AdminLogin.css'; // Import the CSS file
 
 const AdminLogin = ({ setIsAdminAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -10,7 +11,7 @@ const AdminLogin = ({ setIsAdminAuthenticated }) => {
     e.preventDefault();
 
     // Make an API call to authenticate admin
-    const response = await fetch('http://your-api-url/admin/login', {
+    const response = await fetch('http://backend-for-hostted-server.vercel.app/admin/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,22 +32,29 @@ const AdminLogin = ({ setIsAdminAuthenticated }) => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Admin Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+    <div className="admin-login-container">
+      <form className="admin-login-form" onSubmit={handleLogin}>
+        <h2>Admin Login</h2>
+        
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        
+        <button type="submit">Login</button>
+        
+        <a href="/forgot-password" className="forgot-password">Forgot password?</a>
+      </form>
+    </div>
   );
 };
 
