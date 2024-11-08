@@ -36,6 +36,7 @@ db.getConnection((err, connection) => {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
+// Function to hash and insert admin into the database
 async function createAdmin(email, plainPassword) {
     try {
         // Hash the password
@@ -43,18 +44,22 @@ async function createAdmin(email, plainPassword) {
 
         // SQL query to insert admin with hashed password
         const sql = "INSERT INTO admins (email, password) VALUES (?, ?)";
-        db.query(sql, [email, hashedPassword], (err, result) => {
-            if (err) {
-                console.error("Error inserting admin:", err);
-            } else {
-                console.log("Admin created successfully");
-            }
+        return new Promise((resolve, reject) => {
+            db.query(sql, [email, hashedPassword], (err, result) => {
+                if (err) {
+                    console.error("Error inserting admin:", err);
+                    reject(err);
+                } else {
+                    console.log("Admin created successfully");
+                    resolve(result);
+                }
+            });
         });
     } catch (error) {
         console.error("Error during admin creation:", error);
+        throw error;
     }
 }
-
 
 // Middleware for authenticating JWT token
 function authenticateToken(req, res, next) {
@@ -209,6 +214,18 @@ app.get("/admin-home", authenticateToken, (req, res) => {
         });
     } else {
         return res.status(403).json("Access Denied: Invalid Token");
+    }
+});
+
+app.post("/create-admin", async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Call createAdmin function to insert admin with hashed password
+        await createAdmin(email, password);
+        res.status(201).json({ message: "Admin created successfully" });
+    } catch (err) {
+        res.status(500).json({ error: "Error creating admin" });
     }
 });
 
