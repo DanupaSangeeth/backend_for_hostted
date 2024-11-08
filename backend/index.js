@@ -3,6 +3,7 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 require('dotenv').config();
 
 const app = express();
@@ -60,7 +61,7 @@ function logAction(userId, action) {
     });
 }
 
-// Sign-up route for new users
+// Sign-up route for new users with password hashing
 app.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
     const checkUserSql = "SELECT * FROM users WHERE email = ?";
@@ -68,14 +69,16 @@ app.post("/signup", async (req, res) => {
 
     try {
         // Check if the user already exists
-        db.query(checkUserSql, [email], (err, data) => {
+        db.query(checkUserSql, [email], async (err, data) => {
             if (err) return res.status(500).json("Error checking user");
 
             if (data.length > 0) {
                 return res.status(400).json("User already exists");
             }
 
-            const values = [name, email, password];
+            // Hash the password using bcryptjs
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const values = [name, email, hashedPassword];
 
             // Insert user into the database
             db.query(insertUserSql, [values], (err) => {
@@ -90,19 +93,21 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-// Sign-in route for authentication
+// Sign-in route for authentication with password validation
 app.post("/signin", (req, res) => {
     const { email, password } = req.body;
     const sql = "SELECT * FROM users WHERE email = ?";
 
-    db.query(sql, [email], (err, data) => {
+    db.query(sql, [email], async (err, data) => {
         if (err) {
             return res.status(500).json("Error");
         }
         if (data.length > 0) {
             const user = data[0];
 
-            if (password !== user.password) {
+            // Compare password with the hashed password in the database
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
                 return res.status(401).json("Invalid Credentials");
             }
 
