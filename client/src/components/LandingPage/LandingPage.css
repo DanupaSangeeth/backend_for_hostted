@@ -3,9 +3,9 @@
 :root {
   --primary-color: #000000;
   --secondary-color: #f54725;
-  --accent-color: #f3f6f4; /* Bright green accent */
+  --accent-color: #585858; /* Bright green accent */
   --hover-color: #1bbd54; /* Hover state for buttons */
-  --text-light: #ffffff;
+  --text-light: #c4bebe;
   --text-dark: #e5e5e5;
   --max-width: 1200px;
   --header-font: 'Poppins', sans-serif;
