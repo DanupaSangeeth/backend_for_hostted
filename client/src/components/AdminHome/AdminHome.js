@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './AdminHome.css'; // Import CSS file
 
 const AdminHome = () => {
   const [adminData, setAdminData] = useState(null);
@@ -8,27 +9,25 @@ const AdminHome = () => {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        // Fetch the token from localStorage
         const token = localStorage.getItem('adminToken');
 
         if (!token) {
           alert('Unauthorized! Please login again.');
-          navigate('/admin-login'); // Redirect to login if no token found
+          navigate('/admin-login');
           return;
         }
 
-        // Fetch admin data from the server using the token for authentication
-        const response = await fetch('http://localhost:8086/admin-home', {
+        const response = await fetch('http://backend-for-hostted-server.vercel.app/admin-home', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`, // Send token in Authorization header
+            'Authorization': `Bearer ${token}`,
           },
         });
 
         const data = await response.json();
 
         if (response.ok) {
-          setAdminData(data.admin);  // Set the admin data
+          setAdminData(data.admin);
         } else {
           alert('Access denied. Invalid token.');
           navigate('/admin-login');
@@ -43,17 +42,29 @@ const AdminHome = () => {
   }, [navigate]);
 
   return (
-    <div>
-      <h1>Welcome, Admin</h1>
-      {adminData ? (
-        <div>
-          <p>Email: {adminData.email}</p>
-          <p>ID: {adminData.id}</p>
-          {/* You can display more admin info here */}
+    <div className="admin-home-container">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h2>Admin Panel</h2>
         </div>
-      ) : (
-        <p>Loading admin data...</p>
-      )}
+        <ul className="sidebar-menu">
+          <li><a href="/admin-dashboard">Dashboard</a></li>
+          <li><a href="/admin-users">Users</a></li>
+          <li><a href="/admin-settings">Settings</a></li>
+          <li><a href="/logout" onClick={() => localStorage.removeItem('adminToken')}>Logout</a></li>
+        </ul>
+      </aside>
+      <main className="admin-home-content">
+        <h1>Welcome, Admin</h1>
+        {adminData ? (
+          <div className="admin-info">
+            <p><strong>Email:</strong> {adminData.email}</p>
+            <p><strong>ID:</strong> {adminData.id}</p>
+          </div>
+        ) : (
+          <p>Loading admin data...</p>
+        )}
+      </main>
     </div>
   );
 };

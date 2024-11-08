@@ -1,0 +1,83 @@
+/* AdminHome.css */
+
+/* Layout */
+.admin-home-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f0f0f0;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Sidebar Styling */
+  .sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+  }
+  
+  .sidebar-header h2 {
+    margin: 0;
+    padding: 20px 0;
+    font-size: 1.5em;
+    text-align: center;
+    border-bottom: 1px solid #34495e;
+  }
+  
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar-menu li {
+    margin: 20px 0;
+  }
+  
+  .sidebar-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    padding: 10px;
+    display: block;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  
+  .sidebar-menu a:hover {
+    background-color: #34495e;
+  }
+  
+  /* Content Area */
+  .admin-home-content {
+    flex-grow: 1;
+    padding: 40px;
+    background-color: #ecf0f1;
+  }
+  
+  .admin-home-content h1 {
+    font-size: 2.5em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+  
+  .admin-info {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    color: #34495e;
+  }
+  
+  .admin-info p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+  
+  .admin-info strong {
+    color: #2c3e50;
+  }
+  

@@ -8,6 +8,7 @@ import SignIn from './components/SignIn/SignIn';
 import Home from './components/Home/Home';
 import SignUp from './components/SignUp/SignUp';
 import AdminLogin from './components/AdminLogin/AdminLogin'; // Import AdminLogin component
+import AdminHome from './components/AdminHome/AdminHome';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
                 <Route path='/signin' element={<SignIn />} />
                 <Route path='/signup' element={<SignUp />} />
                 <Route path='/admin-login' element={<AdminLogin />} /> {/* Admin Login Route */}
+                <Route path='/admin-home' element={<AdminHome />} /> {/* Admin Login Route */}
               </Routes>
             </main>
         </BrowserRouter>
