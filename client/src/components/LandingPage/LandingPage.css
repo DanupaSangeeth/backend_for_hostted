@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #181818;
+  --primary-color: #9d9797;
   --secondary-color: #f54725;
   --accent-color: #1db954; /* Bright green accent */
   --hover-color: #1ed760; /* Hover state for buttons */
@@ -77,7 +77,7 @@
 }
 
 .header__image img {
-  max-width: 100%;
+  max-width: 70%;
   height: auto;
 }
 
@@ -113,7 +113,7 @@
 .header__btn {
   padding: 0.75rem 2rem;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 200;
   color: var(--text-light);
   background-color: var(--accent-color);
   border: none;
