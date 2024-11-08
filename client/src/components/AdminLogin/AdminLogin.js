@@ -42,7 +42,7 @@ const AdminLogin = ({ setIsAdminAuthenticated }) => {
         }
 
         // Redirect to admin dashboard
-        navigate('/admin-dashboard'); // Redirect to the admin dashboard or home page
+        navigate('/admin-home'); // Redirect to the admin dashboard or home page
       } else {
         console.log('Login Failed:', data);
         setErrorMessage('Invalid credentials'); // Show error message
