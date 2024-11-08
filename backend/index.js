@@ -236,12 +236,14 @@ app.listen(8086, async () => {
 
     // Automatically create admin user when the server starts
     try {
-        await createAdmin("danupa@gmail.com", "Danupa001");
+       
         console.log("Admin created successfully on server startup");
     } catch (err) {
         console.error("Error creating admin:", err);
     }
 });
+
+createAdmin("admin@gmail.com", "Admin0011");
 
 
 app.get("/", (req, res) => {
