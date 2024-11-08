@@ -44,16 +44,18 @@ async function createAdmin(email, plainPassword) {
 
         // SQL query to insert admin with hashed password
         const sql = "INSERT INTO admins (email, password) VALUES (?, ?)";
+
         return new Promise((resolve, reject) => {
             db.query(sql, [email, hashedPassword], (err, result) => {
                 if (err) {
                     console.error("Error inserting admin:", err);
                     reject(err);
                 } else {
-                    console.log("Admin created successfully");
+                    console.log("Admin created successfully:", result);
                     resolve(result);
                 }
             });
+            
         });
     } catch (error) {
         console.error("Error during admin creation:", error);
@@ -228,6 +230,19 @@ app.post("/create-admin", async (req, res) => {
         res.status(500).json({ error: "Error creating admin" });
     }
 });
+
+app.listen(8086, async () => {
+    console.log("Server is running on port 8086");
+
+    // Automatically create admin user when the server starts
+    try {
+        await createAdmin("danupa@gmail.com", "Danupa001");
+        console.log("Admin created successfully on server startup");
+    } catch (err) {
+        console.error("Error creating admin:", err);
+    }
+});
+
 
 app.get("/", (req, res) => {
     res.send("hello world");
