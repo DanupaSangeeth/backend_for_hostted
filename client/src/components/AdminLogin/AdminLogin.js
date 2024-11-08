@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './AdminLogin.css'; // Import the CSS file
+import './AdminLogin.css';  // Import the CSS file
 
 const AdminLogin = ({ setIsAdminAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -26,6 +26,8 @@ const AdminLogin = ({ setIsAdminAuthenticated }) => {
       });
       const data = await response.json();
       
+      console.log(data);  // Log the response to verify the backend response structure
+
       if (response.ok) {
         console.log('Login Successful:', data);
         // Store the token and send it in subsequent requests

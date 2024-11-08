@@ -236,7 +236,7 @@ app.listen(8086, async () => {
 
     // Automatically create admin user when the server starts
     try {
-       
+      
         console.log("Admin created successfully on server startup");
     } catch (err) {
         console.error("Error creating admin:", err);
