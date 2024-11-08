@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingPage from './components/LandingPage/LandingPage';
@@ -8,8 +8,8 @@ import SignIn from './components/SignIn/SignIn';
 import Home from './components/Home/Home';
 import SignUp from './components/SignUp/SignUp';
 import AdminLogin from './components/AdminLogin/AdminLogin'; // Admin login page
-import AdminHome from './components/AdminHome/AdminHome'; // Admin home page
-import { useNavigate } from 'react-router-dom';
+import AdminHome from './components/AdminHome/AdminHome';
+
 
 function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
