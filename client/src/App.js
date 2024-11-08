@@ -7,30 +7,21 @@ import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
 import Home from './components/Home/Home';
 import SignUp from './components/SignUp/SignUp';
-
-
+import AdminLogin from './components/AdminLogin/AdminLogin'; // Import AdminLogin component
 
 function App() {
   return (
     <div className="App">
         <BrowserRouter>
-        <ToastContainer position="top-center" style={{marginTop: "70px"}}/>
+        <ToastContainer position="top-center" style={{ marginTop: "70px" }} />
             <main>
               <Routes>
-              <Route path='/' element={<LandingPage/>}/>
-              <Route path='/home' element={<Home/>}/>
-              <Route path='/signin' element={<SignIn/>}/>
-              <Route path='/signup' element={<SignUp/>}/>
-
-              <Route path="/admin/login" element={<AdminLogin setIsAdminAuthenticated={setIsAdminAuthenticated} />} />
-
-           {/* Protected Admin Home Page */}
-            <Route
-             path="/admin/home"
-            element={isAdminAuthenticated ? <AdminHome /> : <SignIn />} // Only show Admin Home if authenticated  
-
-              />
-             
+                {/* Define the routes */}
+                <Route path='/' element={<LandingPage />} />
+                <Route path='/home' element={<Home />} />
+                <Route path='/signin' element={<SignIn />} />
+                <Route path='/signup' element={<SignUp />} />
+                <Route path='/admin-login' element={<AdminLogin />} /> {/* Admin Login Route */}
               </Routes>
             </main>
         </BrowserRouter>
