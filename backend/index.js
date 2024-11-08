@@ -123,6 +123,36 @@ app.post("/signin", (req, res) => {
     });
 });
 
+// Admin login route
+app.post("/admin-login", (req, res) => {
+    const { email, password } = req.body;
+    const sql = "SELECT * FROM admins WHERE email = ?";
+
+    db.query(sql, [email], async (err, data) => {
+        if (err) {
+            return res.status(500).json("Error");
+        }
+        if (data.length > 0) {
+            const admin = data[0];
+
+            // Compare password with the hashed password in the database
+            const isPasswordValid = await bcrypt.compare(password, admin.password);
+            if (!isPasswordValid) {
+                return res.status(401).json("Invalid Credentials");
+            }
+
+            // Generate JWT token
+            const token = jwt.sign({ id: admin.id, email: admin.email }, JWT_SECRET, { expiresIn: '1h' });
+
+            logAction(admin.id, "Admin logged in");
+
+            res.json({ message: "Admin login successful", token });
+        } else {
+            return res.status(401).json("Admin not found");
+        }
+    });
+});
+
 // Protected route to fetch user data
 app.get("/users", authenticateToken, (req, res) => {
     const sql = "SELECT * FROM users WHERE id = ?";
@@ -140,6 +170,26 @@ app.get("/users", authenticateToken, (req, res) => {
             return res.status(404).json("User not found");
         }
     });
+});
+
+// Protected admin route
+app.get("/admin-home", authenticateToken, (req, res) => {
+    // Check if the user is an admin
+    if (req.user && req.user.email) {
+        const sql = "SELECT * FROM admins WHERE email = ?";
+        db.query(sql, [req.user.email], (err, data) => {
+            if (err) {
+                return res.status(500).json("Error");
+            }
+            if (data.length > 0) {
+                res.json({ message: "Welcome to Admin Home", admin: data[0] });
+            } else {
+                return res.status(403).json("Access Denied: You are not an admin");
+            }
+        });
+    } else {
+        return res.status(403).json("Access Denied: Invalid Token");
+    }
 });
 
 app.get("/", (req, res) => {
