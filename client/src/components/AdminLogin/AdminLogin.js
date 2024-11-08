@@ -14,7 +14,7 @@ const AdminLogin = ({ setIsAdminAuthenticated }) => {
 
     try {
       // Make an API call to authenticate admin
-      const response = await fetch('http://backend-for-hostted-server.vercel.app/admin-login', {
+      const response = await fetch('https://backend-for-hostted-server.vercel.app/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
