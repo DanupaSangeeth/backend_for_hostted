@@ -17,7 +17,7 @@ const AdminHome = () => {
           return;
         }
 
-        const response = await fetch('http://backend-for-hostted-server.vercel.app/admin-home', {
+        const response = await fetch('https://backend-for-hostted-server.vercel.app/admin-home', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
