@@ -36,12 +36,62 @@ db.getConnection((err, connection) => {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
-// Nodemailer setup
-
+// Configure Nodemailer with Zoho Mail
+const mailTransporter = nodemailer.createTransport({
+    host: "smtp.zoho.com",
+    port: 465, // Use 587 for TLS
+    secure: true, // true for SSL
+    auth: {
+        user: process.env.ZOHO_EMAIL, // Your Zoho email address
+        pass: process.env.ZOHO_PASSWORD // Your Zoho email password or app-specific password
+    }
+});
 
 // Verify the email transporter
+mailTransporter.verify((error, success) => {
+    if (error) {
+        console.error("Error configuring email transporter:", error);
+    } else {
+        console.log("Email transporter is ready");
+    }
+});
 
-// Endpoint to send an email
+// Send email function
+function sendEmail(to, subject, htmlContent) {
+    const mailOptions = {
+        from: process.env.ZOHO_EMAIL, // Sender address
+        to, // Recipient email
+        subject, // Subject line
+        html: htmlContent // HTML body
+    };
+
+    return mailTransporter.sendMail(mailOptions);
+}
+
+// Example endpoint to send a verification email
+app.post("/send-verification-email", async (req, res) => {
+    const { email } = req.body;
+
+    // Generate a unique verification token (example)
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
+    const verificationLink = `https://danupa.me/signin/verify-email?token=${token}`;
+
+    const htmlContent = `
+        <p>Dear User,</p>
+        <p>Please verify your email address by clicking the link below:</p>
+        <a href="${verificationLink}">Verify Email</a>
+        <p>This link will expire in 1 hour.</p>
+        <p>Best Regards,<br>Your Company</p>
+    `;
+
+    try {
+        await sendEmail(email, "Verify Your Email", htmlContent);
+        res.json({ message: "Verification email sent successfully" });
+    } catch (error) {
+        console.error("Error sending verification email:", error);
+        res.status(500).json({ error: "Failed to send verification email" });
+    }
+});
 
 // Function to hash and insert admin into the database
 async function createAdmin(email, plainPassword) {
