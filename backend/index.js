@@ -4,8 +4,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 require('dotenv').config();
+const nodemailer = require("nodemailer");
 
 const app = express();
 app.use(cors({
@@ -37,18 +37,16 @@ db.getConnection((err, connection) => {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
-// Configure Nodemailer with Zoho Mail
 const mailTransporter = nodemailer.createTransport({
     host: "smtp.zoho.com",
-    port: 465, // Use 587 for TLS
-    secure: true, // true for SSL
+    port: 465,
+    secure: true,
     auth: {
-        user: process.env.ZOHO_EMAIL, // Your Zoho email address
-        pass: process.env.ZOHO_PASSWORD // Your Zoho email password or app-specific password
+        user: process.env.ZOHO_EMAIL,
+        pass: process.env.ZOHO_PASSWORD
     }
 });
 
-// Verify the email transporter
 mailTransporter.verify((error, success) => {
     if (error) {
         console.error("Error configuring email transporter:", error);
@@ -57,45 +55,34 @@ mailTransporter.verify((error, success) => {
     }
 });
 
-// Send email function
 async function sendEmail(to, subject, htmlContent) {
     const mailOptions = {
-        from: process.env.ZOHO_EMAIL, // Sender address
-        to, // Recipient email
-        subject, // Subject line
-        html: htmlContent // HTML body
+        from: process.env.ZOHO_EMAIL,
+        to,
+        subject,
+        html: htmlContent
     };
 
     return mailTransporter.sendMail(mailOptions);
 }
 
-// Example endpoint to send a verification email
-app.get("/verify-email", (req, res) => {
-    const { token } = req.query;
+// Middleware for authenticating JWT token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token) return res.status(400).json("Invalid verification link");
+    if (!token) return res.status(401).json("Access Denied: No Token Provided");
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) {
             console.error("Token verification failed:", err);
-            return res.status(400).json("Verification link expired or invalid");
+            return res.status(403).json("Invalid Token");
         }
-
-        const { email } = decoded;
-
-        // Mark user as verified in the database
-        const updateSql = "UPDATE users SET verified = true WHERE email = ?";
-        db.query(updateSql, [email], (err, result) => {
-            if (err || result.affectedRows === 0) {
-                return res.status(500).json("Error verifying email");
-            }
-            res.send("Email verified successfully! You can now log in.");
-        });
+        req.user = user;
+        next();
     });
-});
+}
 
-
-// Function to hash and insert admin into the database
 async function createAdmin(email, plainPassword) {
     try {
         // Hash the password
@@ -151,8 +138,11 @@ function logAction(userId, action) {
 app.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
 
+    if (!name || !email || !password) {
+        return res.status(400).json("All fields are required");
+    }
+
     try {
-        // Check if user exists
         const checkUserSql = "SELECT * FROM users WHERE email = ?";
         db.query(checkUserSql, [email], async (err, data) => {
             if (err) return res.status(500).json("Database error");
@@ -161,18 +151,13 @@ app.post("/signup", async (req, res) => {
                 return res.status(400).json("User already exists");
             }
 
-            // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10);
+            const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
 
-            // Generate verification token
-            const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-            // Insert user into the database (unverified)
             const insertUserSql = "INSERT INTO users (name, email, password, verified) VALUES (?, ?, ?, ?)";
             db.query(insertUserSql, [name, email, hashedPassword, false], async (err) => {
                 if (err) return res.status(500).json("Error registering user");
 
-                // Send verification email
                 const verificationLink = `https://danupa.me/verify-email?token=${token}`;
                 const emailContent = `
                     <p>Hi ${name},</p>
@@ -196,6 +181,9 @@ app.post("/signup", async (req, res) => {
         res.status(500).json("Error during sign-up");
     }
 });
+
+
+
 
 // Sign-in route for authentication with password validation
 app.post("/signin", (req, res) => {
@@ -308,17 +296,6 @@ app.post("/create-admin", async (req, res) => {
     }
 });
 
-app.listen(8086, async () => {
-    console.log("Server is running on port 8086");
-
-    // Automatically create admin user when the server starts
-    try {
-      
-        console.log("Admin created successfully on server startup");
-    } catch (err) {
-        console.error("Error creating admin:", err);
-    }
-});
 
 createAdmin("admin@gmail.com", "Admin0011");
 
@@ -328,6 +305,7 @@ app.get("/", (req, res) => {
 });
 
 // Start the server
-app.listen(8086, () => {
-    console.log("Server is running on port 8086");
+const PORT = process.env.PORT || 8085;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
