@@ -68,7 +68,7 @@ const SignUp = () => {
         if (response.status === 200) {
           const { token } = response.data;
           localStorage.setItem('token', token);
-          toast.success('Signup successful!');
+          toast.success('Signup successful! Please check your email to verify your account.');
 
           setValues({
             name: '',
@@ -76,7 +76,7 @@ const SignUp = () => {
             password: '',
             confirmPassword: '',
           });
-          navigate('/signin');
+          navigate('/verify',{ state: { email: values.email } });
         } else {
           setErrors({ general: 'Signup failed. Please try again.' });
         }
