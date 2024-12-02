@@ -173,7 +173,7 @@ app.post("/signup", async (req, res) => {
                 if (err) return res.status(500).json("Error registering user");
 
                 // Send verification email
-                const verificationLink = `https://yourdomain.com/verify-email?token=${token}`;
+                const verificationLink = `https://danupa.me/verify-email?token=${token}`;
                 const emailContent = `
                     <p>Hi ${name},</p>
                     <p>Thank you for signing up! Please verify your email by clicking the link below:</p>
