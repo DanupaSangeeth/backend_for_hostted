@@ -74,7 +74,7 @@ app.post("/send-verification-email", async (req, res) => {
 
     // Generate a unique verification token (example)
     const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
-    const verificationLink = `https://danupa.me/signin/verify-email?token=${token}`;
+    const verificationLink = `https://backend-for-hostted-client.vercel.app`;
 
     const htmlContent = `
         <p>Dear User,</p>
