@@ -8,9 +8,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors({
-    origin: 'https://backend-for-hostted-server.vercel.app',
-    methods: 'GET,POST,PUT,DELETE',
-    credentials: true,
+    origin: '*',
 }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
