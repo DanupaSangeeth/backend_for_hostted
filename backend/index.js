@@ -8,7 +8,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors({
-    origin: 'https://www.danupa.me',
+    origin: 'https://backend-for-hostted-server.vercel.app',
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
 }));
