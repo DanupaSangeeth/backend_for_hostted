@@ -8,7 +8,9 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors({
-    origin: '*',
+    origin: 'https://www.danupa.me',
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true,
 }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
