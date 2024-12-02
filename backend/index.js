@@ -58,7 +58,7 @@ mailTransporter.verify((error, success) => {
 });
 
 // Send email function
-function sendEmail(to, subject, htmlContent) {
+async function sendEmail(to, subject, htmlContent) {
     const mailOptions = {
         from: process.env.ZOHO_EMAIL, // Sender address
         to, // Recipient email
@@ -70,29 +70,30 @@ function sendEmail(to, subject, htmlContent) {
 }
 
 // Example endpoint to send a verification email
-app.post("/send-verification-email", async (req, res) => {
-    const { email } = req.body;
+app.get("/verify-email", (req, res) => {
+    const { token } = req.query;
 
-    // Generate a unique verification token (example)
-    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
-    const verificationLink = `https://backend-for-hostted-client.vercel.app/verify-email?token=${token}`;
+    if (!token) return res.status(400).json("Invalid verification link");
 
-    const htmlContent = `
-        <p>Dear User,</p>
-        <p>Please verify your email address by clicking the link below:</p>
-        <a href="${verificationLink}">Verify Email</a>
-        <p>This link will expire in 1 hour.</p>
-        <p>Best Regards,<br>Your Company</p>
-    `;
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            console.error("Token verification failed:", err);
+            return res.status(400).json("Verification link expired or invalid");
+        }
 
-    try {
-        await sendEmail(email, "Verify Your Email", htmlContent);
-        res.json({ message: "Verification email sent successfully" });
-    } catch (error) {
-        console.error("Error sending verification email:", error);
-        res.status(500).json({ error: "Failed to send verification email" });
-    }
+        const { email } = decoded;
+
+        // Mark user as verified in the database
+        const updateSql = "UPDATE users SET verified = true WHERE email = ?";
+        db.query(updateSql, [email], (err, result) => {
+            if (err || result.affectedRows === 0) {
+                return res.status(500).json("Error verifying email");
+            }
+            res.send("Email verified successfully! You can now log in.");
+        });
+    });
 });
+
 
 // Function to hash and insert admin into the database
 async function createAdmin(email, plainPassword) {
@@ -149,32 +150,50 @@ function logAction(userId, action) {
 // Sign-up route for new users with password hashing
 app.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
-    const checkUserSql = "SELECT * FROM users WHERE email = ?";
-    const insertUserSql = "INSERT INTO users (name, email, password) VALUES (?)";
 
     try {
-        // Check if the user already exists
+        // Check if user exists
+        const checkUserSql = "SELECT * FROM users WHERE email = ?";
         db.query(checkUserSql, [email], async (err, data) => {
-            if (err) return res.status(500).json("Error checking user");
+            if (err) return res.status(500).json("Database error");
 
             if (data.length > 0) {
                 return res.status(400).json("User already exists");
             }
 
-            // Hash the password using bcryptjs
+            // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10);
-            const values = [name, email, hashedPassword];
 
-            // Insert user into the database
-            db.query(insertUserSql, [values], (err) => {
-                if (err) {
-                    return res.status(500).json("Error registering user");
+            // Generate verification token
+            const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+            // Insert user into the database (unverified)
+            const insertUserSql = "INSERT INTO users (name, email, password, verified) VALUES (?, ?, ?, ?)";
+            db.query(insertUserSql, [name, email, hashedPassword, false], async (err) => {
+                if (err) return res.status(500).json("Error registering user");
+
+                // Send verification email
+                const verificationLink = `https://yourdomain.com/verify-email?token=${token}`;
+                const emailContent = `
+                    <p>Hi ${name},</p>
+                    <p>Thank you for signing up! Please verify your email by clicking the link below:</p>
+                    <a href="${verificationLink}">Verify Email</a>
+                    <p>This link will expire in 1 hour.</p>
+                    <p>Best Regards,<br>Your Website Team</p>
+                `;
+
+                try {
+                    await sendEmail(email, "Verify Your Email", emailContent);
+                    res.json("Sign-up successful! Please check your email to verify your account.");
+                } catch (emailError) {
+                    console.error("Error sending email:", emailError);
+                    res.status(500).json("Failed to send verification email");
                 }
-                res.json("User Registered Successfully");
             });
         });
     } catch (err) {
-        res.status(500).json("Error registering user");
+        console.error("Error during sign-up:", err);
+        res.status(500).json("Error during sign-up");
     }
 });
 
