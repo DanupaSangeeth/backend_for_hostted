@@ -47,43 +47,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 
 // Configure Sendinblue SMTP
-const mailTransporter = nodemailer.createTransport({
-    host: "smtp-relay.brevo.com", // Sendinblue SMTP server
-    port: 587, // TLS port
-    secure: true, // Use `true` for port 465
-    auth: {
-        user: process.env.SENDINBLUE_EMAIL, // Your Sendinblue login email
-        pass: process.env.SENDINBLUE_SMTP_KEY, // Your Sendinblue SMTP key
-    },
-});
 
-// Verify Sendinblue configuration
-mailTransporter.verify((error, success) => {
-    if (error) {
-        console.error("Error configuring Sendinblue email transporter:", error);
-    } else {
-        console.log("Sendinblue email transporter is ready");
-    }
-});
-
-// Function to send email
-async function sendEmail(to, subject, htmlContent) {
-    const mailOptions = {
-        from: `"Your App Name" <${process.env.SENDINBLUE_EMAIL}>`, // Your app's "from" email
-        to,
-        subject,
-        text: htmlContent.replace(/<\/?[^>]+(>|$)/g, ""), // Plain-text fallback
-        html: htmlContent, // HTML content
-    };
-
-    try {
-        await mailTransporter.sendMail(mailOptions);
-        console.log(`Email sent to ${to}`);
-    } catch (error) {
-        console.error("Error sending email:", error);
-        throw error;
-    }
-}
 
 // Middleware for authenticating JWT token
 function authenticateToken(req, res, next) {
