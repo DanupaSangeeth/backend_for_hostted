@@ -42,9 +42,9 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // Configure Sendinblue SMTP
 const mailTransporter = nodemailer.createTransport({
-    host: "smtp-relay.sendinblue.com", // Sendinblue SMTP server
+    host: "smtp-relay.brevo.com", // Sendinblue SMTP server
     port: 587, // TLS port
-    secure: false, // Use `true` for port 465
+    secure: true, // Use `true` for port 465
     auth: {
         user: process.env.SENDINBLUE_EMAIL, // Your Sendinblue login email
         pass: process.env.SENDINBLUE_SMTP_KEY, // Your Sendinblue SMTP key
