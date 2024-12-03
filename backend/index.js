@@ -126,7 +126,7 @@ app.post("/signup", async (req, res) => {
             db.query(insertUserSql, [name, email, hashedPassword, false], async (err) => {
                 if (err) return res.status(500).json("Error registering user");
 
-                const verificationLink = `https://danupa.me/verify-email?token=${token}`;
+                const verificationLink = `https://backend-for-hostted-client.vercel.app/verify-email?token=${token}`;
                 const emailContent = `
                     <p>Hi ${name},</p>
                     <p>Thank you for signing up! Please verify your email by clicking the link below:</p>
