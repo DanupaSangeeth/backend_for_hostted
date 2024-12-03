@@ -15,6 +15,7 @@ const SignUp = () => {
     });
 
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false); // For loading state
     const navigate = useNavigate();
 
     // Handle input changes
@@ -53,12 +54,13 @@ const SignUp = () => {
         setErrors(validationErrors);
 
         if (Object.keys(validationErrors).length === 0) {
+            setIsLoading(true); // Show loading spinner
             try {
                 const response = await axios.post('https://backend-for-hostted-server.vercel.app/signup', values);
                 if (response.status === 200) {
                     const { token } = response.data;
                     localStorage.setItem('token', token);
-                    toast.success('Signup successful! Please check your email to verify your account.');
+                    toast.success('Signup successful! Check your inbox (or spam) for the verification email.');
 
                     // Reset form
                     setValues({
@@ -75,13 +77,16 @@ const SignUp = () => {
                 }
             } catch (error) {
                 console.error('Error:', error);
-                const message = error.response?.status === 400
-                    ? 'Invalid input data.'
-                    : error.response?.status === 409
-                    ? 'Email already exists.'
-                    : 'An error occurred. Please try again later.';
+                const message =
+                    error.response?.status === 400
+                        ? 'Invalid input data.'
+                        : error.response?.status === 409
+                        ? 'Email already exists.'
+                        : 'An error occurred. Please try again later.';
                 setErrors({ general: message });
                 toast.error(message);
+            } finally {
+                setIsLoading(false); // Stop loading spinner
             }
         }
     };
@@ -171,7 +176,9 @@ const SignUp = () => {
                     </div>
 
                     {/* Submit Button */}
-                    <input type="submit" className="btn" value="SUBMIT" />
+                    <button type="submit" className="btn" disabled={isLoading}>
+                        {isLoading ? 'Loading...' : 'SUBMIT'}
+                    </button>
                     <a href="/signin" className="abtn">SIGN IN</a>
                     <p>Already Have An Account?</p>
                 </form>
