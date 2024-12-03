@@ -9,7 +9,9 @@ const nodemailer = require("nodemailer");
 
 const app = express();
 app.use(cors({
-    origin: '*',
+    origin: ['https://backend-for-hostted-client.vercel.app'],  // Add your front-end domain here
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
