@@ -8,10 +8,16 @@ require('dotenv').config();
 const nodemailer = require("nodemailer");
 
 const app = express();
+const allowedOrigins = ['https://backend-for-hostted-client.vercel.app'];
+
 app.use(cors({
-    origin: ['https://backend-for-hostted-client.vercel.app'],  // Add your front-end domain here
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
