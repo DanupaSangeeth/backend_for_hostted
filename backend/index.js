@@ -5,10 +5,19 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 require('dotenv').config();
+const nodemailer = require("nodemailer");
 
 const app = express();
+const allowedOrigins = ['https://backend-for-hostted-client.vercel.app'];
+
 app.use(cors({
-    origin: '*',
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,14 +45,136 @@ db.getConnection((err, connection) => {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
-// Nodemailer setup
 
+// Configure Sendinblue SMTP
+const mailTransporter = nodemailer.createTransport({
+    host: "smtp-relay.brevo.com", // Sendinblue SMTP server
+    port: 587, // TLS port
+    secure: true, // Use `true` for port 465
+    auth: {
+        user: process.env.SENDINBLUE_EMAIL, // Your Sendinblue login email
+        pass: process.env.SENDINBLUE_SMTP_KEY, // Your Sendinblue SMTP key
+    },
+});
 
-// Verify the email transporter
+// Verify Sendinblue configuration
+mailTransporter.verify((error, success) => {
+    if (error) {
+        console.error("Error configuring Sendinblue email transporter:", error);
+    } else {
+        console.log("Sendinblue email transporter is ready");
+    }
+});
 
-// Endpoint to send an email
+// Function to send email
+async function sendEmail(to, subject, htmlContent) {
+    const mailOptions = {
+        from: `"Your App Name" <${process.env.SENDINBLUE_EMAIL}>`, // Your app's "from" email
+        to,
+        subject,
+        text: htmlContent.replace(/<\/?[^>]+(>|$)/g, ""), // Plain-text fallback
+        html: htmlContent, // HTML content
+    };
 
-// Function to hash and insert admin into the database
+    try {
+        await mailTransporter.sendMail(mailOptions);
+        console.log(`Email sent to ${to}`);
+    } catch (error) {
+        console.error("Error sending email:", error);
+        throw error;
+    }
+}
+
+// Middleware for authenticating JWT token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) return res.status(401).json("Access Denied: No Token Provided");
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            console.error("Token verification failed:", err);
+            return res.status(403).json("Invalid Token");
+        }
+        req.user = user;
+        next();
+    });
+}
+
+// Log action to the activity_logs table
+function logAction(userId, action) {
+    const sql = "INSERT INTO activity_logs (user_id, action) VALUES (?, ?)";
+    db.query(sql, [userId, action], (err) => {
+        if (err) console.error("Error logging action:", err);
+    });
+}
+
+// Sign-up route for new users with email verification
+app.post("/signup", async (req, res) => {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+        return res.status(400).json("All fields are required");
+    }
+
+    try {
+        const checkUserSql = "SELECT * FROM users WHERE email = ?";
+        db.query(checkUserSql, [email], async (err, data) => {
+            if (err) return res.status(500).json("Database error");
+
+            if (data.length > 0) {
+                return res.status(400).json("User already exists");
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
+
+            const insertUserSql = "INSERT INTO users (name, email, password, verified) VALUES (?, ?, ?, ?)";
+            db.query(insertUserSql, [name, email, hashedPassword, false], async (err) => {
+                if (err) return res.status(500).json("Error registering user");
+
+                const verificationLink = `https://backend-for-hostted-client.vercel.app/verify-email?token=${token}`;
+                const emailContent = `
+                    <p>Hi ${name},</p>
+                    <p>Thank you for signing up! Please verify your email by clicking the link below:</p>
+                    <a href="${verificationLink}">Verify Email</a>
+                    <p>This link will expire in 1 hour.</p>
+                    <p>Best Regards,<br>Your Website Team</p>
+                `;
+
+                try {
+                    await sendEmail(email, "Verify Your Email", emailContent);
+                    res.json("Sign-up successful! Please check your email to verify your account.");
+                } catch (emailError) {
+                    console.error("Error sending email:", emailError);
+                    res.status(500).json("Failed to send verification email");
+                }
+            });
+        });
+    } catch (err) {
+        console.error("Error during sign-up:", err);
+        res.status(500).json("Error during sign-up");
+    }
+});
+
+// Middleware for authenticating JWT token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(401).json("Access Denied: No Token Provided");
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            console.error("Token verification failed:", err);
+            return res.status(403).json("Invalid Token");
+        }
+        req.user = user;
+        next();
+    });
+}
+
 async function createAdmin(email, plainPassword) {
     try {
         // Hash the password
@@ -95,37 +226,10 @@ function logAction(userId, action) {
     });
 }
 
-// Sign-up route for new users with password hashing
-app.post("/signup", async (req, res) => {
-    const { name, email, password } = req.body;
-    const checkUserSql = "SELECT * FROM users WHERE email = ?";
-    const insertUserSql = "INSERT INTO users (name, email, password) VALUES (?)";
 
-    try {
-        // Check if the user already exists
-        db.query(checkUserSql, [email], async (err, data) => {
-            if (err) return res.status(500).json("Error checking user");
 
-            if (data.length > 0) {
-                return res.status(400).json("User already exists");
-            }
 
-            // Hash the password using bcryptjs
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const values = [name, email, hashedPassword];
 
-            // Insert user into the database
-            db.query(insertUserSql, [values], (err) => {
-                if (err) {
-                    return res.status(500).json("Error registering user");
-                }
-                res.json("User Registered Successfully");
-            });
-        });
-    } catch (err) {
-        res.status(500).json("Error registering user");
-    }
-});
 
 // Sign-in route for authentication with password validation
 app.post("/signin", (req, res) => {
@@ -238,17 +342,6 @@ app.post("/create-admin", async (req, res) => {
     }
 });
 
-app.listen(8086, async () => {
-    console.log("Server is running on port 8086");
-
-    // Automatically create admin user when the server starts
-    try {
-      
-        console.log("Admin created successfully on server startup");
-    } catch (err) {
-        console.error("Error creating admin:", err);
-    }
-});
 
 createAdmin("admin@gmail.com", "Admin0011");
 
@@ -258,6 +351,7 @@ app.get("/", (req, res) => {
 });
 
 // Start the server
-app.listen(8086, () => {
-    console.log("Server is running on port 8086");
+const PORT = process.env.PORT || 8085;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
