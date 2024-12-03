@@ -37,52 +37,14 @@ db.getConnection((err, connection) => {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
-const mailTransporter = nodemailer.createTransport({
-    host: "smtp.zoho.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.ZOHO_EMAIL,
-        pass: process.env.ZOHO_PASSWORD
-    }
-});
+// Nodemailer setup
 
-mailTransporter.verify((error, success) => {
-    if (error) {
-        console.error("Error configuring email transporter:", error);
-    } else {
-        console.log("Email transporter is ready");
-    }
-});
 
-async function sendEmail(to, subject, htmlContent) {
-    const mailOptions = {
-        from: process.env.ZOHO_EMAIL,
-        to,
-        subject,
-        html: htmlContent
-    };
+// Verify the email transporter
 
-    return mailTransporter.sendMail(mailOptions);
-}
+// Endpoint to send an email
 
-// Middleware for authenticating JWT token
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) return res.status(401).json("Access Denied: No Token Provided");
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            console.error("Token verification failed:", err);
-            return res.status(403).json("Invalid Token");
-        }
-        req.user = user;
-        next();
-    });
-}
-
+// Function to hash and insert admin into the database
 async function createAdmin(email, plainPassword) {
     try {
         // Hash the password
